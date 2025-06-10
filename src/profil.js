@@ -58,6 +58,27 @@ function Profil() {
     navigate('/');
   };
 
+  // Fungsi hapus file dari daftar tersimpan
+  const handleDeleteFile = (fileName) => {
+    const userName = localStorage.getItem('userName') || 'default';
+    const key = `downloadedFiles_${userName}`;
+    const downloads = localStorage.getItem(key);
+    if (downloads) {
+      try {
+        const parsed = JSON.parse(downloads);
+        const filtered = Array.isArray(parsed)
+          ? parsed.filter(f => f.name !== fileName)
+          : [];
+        setSavedFiles(filtered);
+        localStorage.setItem(key, JSON.stringify(filtered));
+      } catch {
+        // Jika gagal parsing, reset saja
+        setSavedFiles([]);
+        localStorage.setItem(key, JSON.stringify([]));
+      }
+    }
+  };
+
   return (
     <div className="profil-container">
       {/* Tombol Back to Slide pojok kanan atas */}
@@ -108,7 +129,6 @@ function Profil() {
           </form>
         ) : (
           <div className="saved-files-table-container">
-            {/* <button className="back-to-profile-btn" onClick={handleHideFiles}>← Kembali</button> */}
             <table className="saved-files-table">
               <thead>
                 <tr>
@@ -182,6 +202,23 @@ function Profil() {
                             }}
                           >
                             Unduh
+                          </button>
+                          {/* Tombol Delete */}
+                          <button
+                            className="profil-delete-btn"
+                            style={{
+                              marginTop: '6px',
+                              padding: '4px 14px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#888',
+                              color: '#fff',
+                              fontWeight: 'bold',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleDeleteFile(file.name)}
+                          >
+                            Delete
                           </button>
                         </div>
                       </td>
