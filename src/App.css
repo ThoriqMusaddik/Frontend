@@ -1,0 +1,334 @@
+/* Reset dasar */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Kontainer utama dengan dua kolom */
+.container {
+  display: flex;
+  width: 100vw;         /* Lebar penuh layar */
+  height: 100vh;        /* Tinggi penuh layar */
+  box-shadow: none;     /* Opsional: hilangkan bayangan jika tidak ingin efek kotak */
+  border-radius: 0;     /* Opsional: hilangkan sudut bulat untuk tampilan penuh */
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+/* Sidebar kanan (warna gradasi oranye) */
+.sidebar {
+  flex: 0.3;
+  background: linear-gradient(to bottom, #ff7f50, #e74c3c);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 100px;
+  text-align: center;
+  position: absolute;
+  right: 0;
+  top: 10;
+  width: 320px;
+  height: 100vh;
+  align-items: flex-center;
+  justify-content: flex-top;
+  padding: 40px 32px 40px 32px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.sidebar h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.sidebar p {
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.sidebar-slogan {
+  font-size: 15px;
+  margin-bottom: 24px;
+  font-weight: 400;
+  margin-top: 0;
+}
+.sidebar-thanks {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Bagian konten utama */
+.converter {
+  flex: 0.7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.converter h2 {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.converter p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+/* Tombol utama */
+button {
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #ff7f50, #e74c3c);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: linear-gradient(to right, #e74c3c, #ff7f50);
+  transform: scale(1.05);
+}
+
+.drop-text {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+}
+
+/* Header di bagian atas */
+.header {
+  position: absolute; /* Ini yang penting */
+  top: 0;
+  right: 0;
+  width: 100%;  
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  padding: 20px 40px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.header h1 {
+  font-size: 36px;
+  color: #e74c3c;
+  margin: 0;
+}
+
+.header p {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+/* Tombol auth-buttons di kanan atas */
+.auth-buttons {
+  position: absolute;
+  top: 32px;
+  right: 350px;
+  display: flex;
+  gap: 16px;
+  z-index: 100;
+}
+.auth-btn {
+  padding: 10px 25px;
+  font-size: 15px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #ff7f50, #e74c3c);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  white-space: nowrap;
+}
+.auth-btn:hover {
+  background: linear-gradient(to right, #e74c3c, #ff7f50);
+  transform: scale(1.05);
+}
+
+/* Logo dan slogan kiri atas */
+.logo-area {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  z-index: 10;
+  text-align: left;
+}
+.logo-area h1 {
+  font-size: 40px;
+  color: #e74c3c;
+  margin: 0;
+  font-weight: bold;
+}
+.logo-area .highlight {
+  color: #ff7f50;
+}
+.logo-area .slogan {
+  font-size: 15px;
+  color: #222;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Menu HOME dan tombol login/signup kanan atas */
+.menu-home {
+  position: absolute;
+  top: 32px;
+  right: 60px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.menu-item {
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+/* Konten tengah */
+.main-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.download-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.download-subtitle {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.download-btn {
+  background: linear-gradient(to right, #ff7f50, #e74c3c);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 22px 0;
+  width: 420px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.download-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+/* Tambahan untuk profil user di header */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 32px;
+  right: 60px;
+  z-index: 200;
+}
+
+.user-profile .profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff0101;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Section solusi lain */
+.solusi-section {
+  width: 100vw;
+  background: #fff;
+  padding: 100px 0 80px 0;
+  margin-top: 100vh; /* Biar muncul setelah konten utama */
+  text-align: center;
+}
+
+.solusi-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 48px;
+  color: #222;
+}
+
+.solusi-cards {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.solusi-card {
+  background: #fafafa;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 32px 28px;
+  max-width: 350px;
+  min-width: 260px;
+  text-align: left;
+  transition: box-shadow 0.2s;
+}
+
+.solusi-card h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 14px;
+  color: #222;
+}
+
+.solusi-card p {
+  font-size: 1.1rem;
+  color: #444;
+  margin: 0;
+}
+
+.solusi-card a {
+  color: #e74c3c;
+  text-decoration: underline;
+}

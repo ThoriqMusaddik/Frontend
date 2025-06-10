@@ -1,0 +1,228 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Arial', sans-serif;
+}
+
+.download23-container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar kiri (merah gradasi) */
+.download23-sidebar {
+  width: 35%;
+  background: linear-gradient(to bottom, #ff7e5f, #ff4b2b);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.download23-sidebar-slogan {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.download23-sidebar-thanks {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Konten kanan */
+.download23-main {
+  width: 65%;
+  background-color: #ffffff;
+  padding: 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Header */
+.download23-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.download23-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.download23-logo-bold {
+  color: #f44336;
+}
+
+.download23-slogan {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.download23-home-link {
+  font-weight: bold;
+  text-decoration: none;
+  color: black;
+}
+
+/* Konten Tengah */
+.download23-center-content {
+  text-align: center;
+}
+
+.download23-title {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.download23-desc {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.download23-btn {
+  padding: 10px 20px;
+  background-color: #ff4b2b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.download23-btn:hover {
+  background-color: #ff7e5f;
+}
+
+/* Layout utama */
+.download-update-root {
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  position: relative;
+}
+.full-width-header {
+  display: flex;
+  width: 100vw; /* Lebar penuh layar (viewport width) */
+  background: linear-gradient(to right, #ff7f50, #e74c3c); /* Gradasi dari kiri ke kanan */
+  color: white;
+  padding: 10px 10px;
+  box-sizing: border-box;
+  position: fixed; /* Atas halaman, tetap saat scroll */
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+.download-update-logo {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.download-update-logo-bold {
+  color: #fff;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.download-update-slogan {
+  font-size: 1.1rem;
+  color: #fff;
+  text-align: left;
+  font-weight: 100;
+  margin-left: 10px;
+  margin-top: 5px;
+  flex: 1;
+}
+
+.download-update-home {
+  background: white;
+  border: none;
+  color: #ee0505;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 10px 20px;
+  letter-spacing: 0.1px;
+  transition: color 0.2s;
+  margin-right: auto;
+}
+.download-update-home:hover {
+  color: #ffe0b2;
+}
+
+/* Konten Tengah */
+.download-update-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.download-update-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #111;
+  text-align: center;
+}
+
+.download-update-desc {
+  font-size: 1rem;
+  color: #222;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.download-update-btn {
+  padding: 22px 0;
+  width: 320px;
+  background: linear-gradient(to right, #ff7f50, #e74c3c);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: none;
+}
+.download-update-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+/* Footer */
+.download-update-footer {
+  width: 100%;
+  text-align: center;
+  color: #222;
+  font-size: 1rem;
+  margin-bottom: 18px;
+  margin-top: 32px;
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 0.5px;
+}

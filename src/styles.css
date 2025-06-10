@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.header {
+    flex: 1;
+    padding: 20px;
+}
+
+.header h1 {
+    font-size: 40px;
+    color: #e76e5c; /* Merah */
+}
+
+.header p {
+    font-size: 16px;
+}
+
+.converter {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.converter h2 {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.converter p {
+    margin-bottom: 20px;
+}
+
+#fileInput {
+    display: none;
+}
+
+#convertButton {
+    padding: 10px 20px;
+    background-color: #ff7f50; /* Warna oranye */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#convertButton:hover {
+    background-color: #e76e5c; /* Merah */
+}
+
+.drop-text {
+    margin-top: 10px;
+    font-weight: 400;
+}
+
+.sidebar {
+    flex: 1;
+    background-color: #ff7f50;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    font-size: 24px;
+}
+
+.sidebar p {
+    font-size: 14px;
+}

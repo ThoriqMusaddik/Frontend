@@ -1,0 +1,136 @@
+/* Reset dasar */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Wrapper utama */
+.wrapper {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  height: 80vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Header bagian kiri atas */
+.header {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+}
+
+.header h1 {
+  font-size: 36px;
+  color: #e74c3c;
+  margin: 0;
+}
+
+.header p {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+/* Form container */
+.form-container {
+  flex: 0.7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.form-container h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.form-container p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.form-container form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.form-container input {
+  padding: 12px;
+  font-size: 14px;
+  border: 2px solid #ccc;
+  border-radius: 25px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.form-container input:focus {
+  border-color: #e74c3c;
+}
+
+.submit-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #ff7f50, #e74c3c);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(to right, #e74c3c, #ff7f50);
+  transform: scale(1.05);
+}
+
+/* Sidebar kanan */
+.right-sidebar {
+  flex: 0.3;
+  background: linear-gradient(to bottom, #ff7f50, #e74c3c);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.right-sidebar h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.right-sidebar p {
+  font-size: 16px;
+  margin-top: 10px;
+}
