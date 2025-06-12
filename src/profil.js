@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './profil.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Profil() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -13,8 +15,7 @@ function Profil() {
     const name = localStorage.getItem('userName');
     if (name) {
       setUserName(name);
-      // Ambil email dari backend
-      fetch(`http://localhost:5000/api/users/by-username/${encodeURIComponent(name)}`)
+      fetch(`${API_URL}/api/users/by-username/${encodeURIComponent(name)}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.email) setEmail(data.email);
@@ -23,14 +24,12 @@ function Profil() {
     }
   }, []);
 
-  // Handler untuk logout
   const handleLogout = () => {
     localStorage.removeItem('userToken');
     localStorage.removeItem('userName');
     navigate('/');
   };
 
-  // Handler untuk menampilkan file tersimpan
   const handleShowFiles = () => {
     const userName = localStorage.getItem('userName') || 'default';
     const key = `downloadedFiles_${userName}`;
@@ -48,17 +47,14 @@ function Profil() {
     setShowFiles(true);
   };
 
-  // Handler untuk kembali ke form profil
   const handleHideFiles = () => {
     setShowFiles(false);
   };
 
-  // Handler untuk tombol back to slide
   const handleBackToSlide = () => {
     navigate('/');
   };
 
-  // Fungsi hapus file dari daftar tersimpan
   const handleDeleteFile = (fileName) => {
     const userName = localStorage.getItem('userName') || 'default';
     const key = `downloadedFiles_${userName}`;
@@ -72,16 +68,66 @@ function Profil() {
         setSavedFiles(filtered);
         localStorage.setItem(key, JSON.stringify(filtered));
       } catch {
-        // Jika gagal parsing, reset saja
         setSavedFiles([]);
         localStorage.setItem(key, JSON.stringify([]));
       }
     }
   };
 
+  const normalizeUrl = (url) => {
+    if (!url) return '';
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        return `${API_URL}${parsedUrl.pathname}`;
+      }
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
+  const handleRedownload = (file) => {
+    let url = '';
+
+    if (file.path) {
+      url = `${API_URL}${file.path}`;
+    } else {
+      const uploadedFile = localStorage.getItem('uploadedFile');
+      if (uploadedFile) {
+        try {
+          const parsed = JSON.parse(uploadedFile);
+          const found = Array.isArray(parsed)
+            ? parsed.find(f => f.name === file.name)
+            : (parsed.name === file.name ? parsed : null);
+          if (found && found.path) {
+            url = `${API_URL}${found.path}`;
+          }
+        } catch {}
+      }
+    }
+
+    if (!url) {
+      url = localStorage.getItem('selectedFile');
+    }
+
+    if (!url) {
+      alert('File tidak ditemukan untuk diunduh.');
+      return;
+    }
+
+    const finalUrl = normalizeUrl(url);
+
+    const link = document.createElement('a');
+    link.href = finalUrl;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="profil-container">
-      {/* Tombol Back to Slide pojok kanan atas */}
       <button className="back-to-slide-btn" onClick={handleBackToSlide}>
         Back to Slide
       </button>
@@ -115,6 +161,7 @@ function Profil() {
           Logout <span className="profil-logout-icon">&#x1F6AA;</span>
         </button>
       </div>
+
       <div className="profil-main">
         {!showFiles ? (
           <form className="profil-form">
@@ -164,46 +211,10 @@ function Profil() {
                               fontWeight: 'bold',
                               cursor: 'pointer'
                             }}
-                            onClick={() => {
-                              // Coba ambil dari uploads jika ada path, fallback ke localStorage
-                              let url = '';
-                              if (file.path) {
-                                url = `http://localhost:5000${file.path}`;
-                              } else {
-                                // Coba cari di localStorage uploadedFile
-                                const uploadedFile = localStorage.getItem('uploadedFile');
-                                if (uploadedFile) {
-                                  try {
-                                    const parsed = JSON.parse(uploadedFile);
-                                    const found = Array.isArray(parsed)
-                                      ? parsed.find(f => f.name === file.name)
-                                      : (parsed.name === file.name ? parsed : null);
-                                    if (found && found.path) {
-                                      url = `http://localhost:5000${found.path}`;
-                                    }
-                                  } catch {}
-                                }
-                              }
-                              // Jika tidak ada url, fallback ke selectedFile
-                              if (!url) {
-                                url = localStorage.getItem('selectedFile');
-                              }
-                              // Jika tetap tidak ada, alert
-                              if (!url) {
-                                alert('File tidak ditemukan untuk diunduh.');
-                                return;
-                              }
-                              const link = document.createElement('a');
-                              link.href = url;
-                              link.download = file.name;
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                            }}
+                            onClick={() => handleRedownload(file)}
                           >
                             Unduh
                           </button>
-                          {/* Tombol Delete */}
                           <button
                             className="profil-delete-btn"
                             style={{
