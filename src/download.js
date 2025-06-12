@@ -21,11 +21,29 @@ function Download() {
     }
   }, []);
 
+  const normalizeUrl = (url) => {
+    if (!url) return '';
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') {
+        // replace localhost with API_URL
+        const relativePath = parsedUrl.pathname;
+        return `${API_URL}${relativePath}`;
+      }
+      return url;
+    } catch (err) {
+      console.error('Invalid URL:', err);
+      return url;
+    }
+  };
+
   const handleDownload = () => {
     if (!fileUrl) return;
 
+    const finalUrl = normalizeUrl(fileUrl);
+
     const link = document.createElement('a');
-    link.href = fileUrl;
+    link.href = finalUrl;
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
@@ -61,7 +79,6 @@ function Download() {
     downloadedFiles.push(newFile);
     localStorage.setItem(key, JSON.stringify(downloadedFiles));
 
-    // Kirim log download ke backend (endpoint tersendiri)
     sendDownloadLogToBackend(userName, newFile);
   };
 
