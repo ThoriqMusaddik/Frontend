@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // ← Tambahkan baris ini
+import { useNavigate } from 'react-router-dom';
 import './halaman.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -7,20 +7,16 @@ const API_URL = process.env.REACT_APP_API_URL;
 function Halaman() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingJpg, setIsLoadingJpg] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [notif, setNotif] = useState('');
-  const [isLoadingJpg, setIsLoadingJpg] = useState(false); // Tambahkan state baru
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     setIsLoggedIn(!!token);
-
-    // Reset guestConvertCount jika login
-    if (token) {
-      localStorage.removeItem('guestConvertCount');
-    }
+    if (token) localStorage.removeItem('guestConvertCount');
 
     const uploadedFile = localStorage.getItem('uploadedFile');
     if (uploadedFile) {
@@ -33,20 +29,16 @@ function Halaman() {
     }
   }, []);
 
-  const handleDelete = (fileName) => {
-    fetch(`http://localhost:5000/api/files/${encodeURIComponent(fileName)}`, {
-      method: 'DELETE',
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('Gagal menghapus file di database');
-        const updatedFiles = uploadedFiles.filter((file) => file.name !== fileName);
-        setUploadedFiles(updatedFiles);
-        localStorage.setItem('uploadedFile', JSON.stringify(updatedFiles));
-      })
-      .catch((error) => {
-        console.error('Terjadi kesalahan:', error);
-        alert('Gagal menghapus file di database.');
-      });
+  const checkGuestLimit = () => {
+    if (!isLoggedIn) {
+      const count = Number(localStorage.getItem('guestConvertCount') || 0);
+      if (count >= 1) {
+        setNotif('Silahkan login terlebih dahulu untuk melanjutkan.');
+        return false;
+      }
+      localStorage.setItem('guestConvertCount', count + 1);
+    }
+    return true;
   };
 
   const handleAddFile = () => {
@@ -56,184 +48,121 @@ function Halaman() {
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const allowedExtensions = ['doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!file) return;
 
-      if (allowedExtensions.includes(fileExtension)) {
-        setNotif('Mohon tunggu sebentar, file sedang ter-upload...');
-        const formData = new FormData();
-        formData.append('file', file);
+    const allowedExtensions = ['doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
 
-        fetch(`${API_URL}/api/files/upload`, {
-          method: 'POST',
-          body: formData,
-        })
-          .then((response) => {
-            if (!response.ok) throw new Error('Gagal upload file ke server');
-            return response.json();
-          })
-          .then((data) => {
-            const newFile = {
-              name: data.originalname,
-              size: file.size,
-              type: file.type,
-              path: `/uploads/${data.filename}`,
-              uploadedBy: 1,
-            };
-            const updatedFiles = [...uploadedFiles, newFile];
-            setUploadedFiles(updatedFiles);
-            localStorage.setItem('uploadedFile', JSON.stringify(updatedFiles));
-            setNotif('Sukses di-upload!');
-            setTimeout(() => setNotif(''), 1500);
-          })
-          .catch((error) => {
-            console.error('Terjadi kesalahan:', error);
-            setNotif('Gagal upload file ke server.');
-            setTimeout(() => setNotif(''), 2000);
-          });
+    if (!allowedExtensions.includes(fileExtension)) {
+      setNotif('Hanya file Word, Excel, dan JPG yang dapat diunggah.');
+      setTimeout(() => setNotif(''), 2000);
+      return;
+    }
+
+    setNotif('Sedang mengupload file...');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${API_URL}/api/files/upload`, { method: 'POST', body: formData });
+      if (!response.ok) throw new Error('Gagal upload file');
+      const data = await response.json();
+
+      const newFile = {
+        name: data.originalname,
+        size: file.size,
+        type: file.type,
+        path: `/uploads/${data.filename}`,
+        uploadedBy: 1,
+      };
+
+      const updatedFiles = [...uploadedFiles, newFile];
+      setUploadedFiles(updatedFiles);
+      localStorage.setItem('uploadedFile', JSON.stringify(updatedFiles));
+      setNotif('Berhasil upload file!');
+    } catch (err) {
+      console.error(err);
+      setNotif('Gagal upload file.');
+    } finally {
+      setTimeout(() => setNotif(''), 1500);
+    }
+  };
+
+  const handleDelete = async (fileName) => {
+    try {
+      const response = await fetch(`${API_URL}/api/files/${encodeURIComponent(fileName)}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Gagal hapus file');
+      const updated = uploadedFiles.filter(file => file.name !== fileName);
+      setUploadedFiles(updated);
+      localStorage.setItem('uploadedFile', JSON.stringify(updated));
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghapus file');
+    }
+  };
+
+  const handleConvert = async (type) => {
+    if (!checkGuestLimit()) return;
+    if (!uploadedFiles.length) return alert('Pilih file terlebih dahulu!');
+
+    const fileMeta = uploadedFiles[0];
+    const extension = fileMeta.name.split('.').pop().toLowerCase();
+
+    const rules = {
+      word: ['doc', 'docx'],
+      excel: ['xls', 'xlsx'],
+      jpg: ['jpg', 'jpeg']
+    };
+
+    if (!rules[type].includes(extension)) {
+      return alert(`Pilih file ${type.toUpperCase()} yang sesuai!`);
+    }
+
+    const endpointMap = {
+      word: '/api/convert/word-to-pdf',
+      excel: '/api/convert/excel-to-pdf',
+      jpg: '/api/convert/jpg-to-pdf'
+    };
+
+    try {
+      if (type === 'jpg') {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setIsLoadingJpg(true);
       } else {
-        setNotif('Hanya file Word, Excel, dan JPG yang dapat diunggah.');
-        setTimeout(() => setNotif(''), 2000);
+        setIsLoading(true);
       }
-    }
-  };
 
-  // Tambahkan fungsi pengecekan guest limit
-  const checkGuestLimit = () => {
-    if (!isLoggedIn) {
-      const count = Number(localStorage.getItem('guestConvertCount') || 0);
-      if (count >= 1) {
-        setNotif('maaf login dulu bro');
-        return false;
-      }
-      localStorage.setItem('guestConvertCount', count + 1);
-    }
-    return true;
-  };
-
-  const handleConvertWordToPdf = async () => {
-    if (!checkGuestLimit()) return;
-
-    if (!uploadedFiles.length) return alert('Pilih file dulu!');
-    const fileMeta = uploadedFiles[0];
-    const allowedExtensions = ['doc', 'docx'];
-    const fileExtension = fileMeta.name.split('.').pop().toLowerCase();
-    if (!allowedExtensions.includes(fileExtension)) {
-      return alert('Pilih file Word (.doc/.docx) untuk dikonversi ke PDF!');
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/convert/word-to-pdf', {
+      const response = await fetch(`${API_URL}${endpointMap[type]}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName: fileMeta.name }),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${errorText}`);
-      }
-
+      if (!response.ok) throw new Error('Konversi gagal');
       const data = await response.json();
+
       localStorage.setItem('selectedFile', data.fileUrl);
       localStorage.setItem('selectedFileName', fileMeta.name.replace(/\.[^/.]+$/, '') + '.pdf');
       navigate('/download');
-    } catch (error) {
-      console.error('Konversi gagal:', error);
-      alert('Konversi gagal: ' + error.message);
+    } catch (err) {
+      console.error(err);
+      alert('Konversi gagal: ' + err.message);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleConvertExcelToPdf = async () => {
-    if (!checkGuestLimit()) return;
-
-    if (!uploadedFiles.length) return alert('Pilih file dulu!');
-    const fileMeta = uploadedFiles[0];
-    const allowedExtensions = ['xls', 'xlsx'];
-    const fileExtension = fileMeta.name.split('.').pop().toLowerCase();
-    if (!allowedExtensions.includes(fileExtension)) {
-      return alert('Pilih file Excel (.xls/.xlsx) untuk dikonversi ke PDF!');
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/convert/excel-to-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: fileMeta.name }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${errorText}`);
-      }
-
-      const data = await response.json();
-      localStorage.setItem('selectedFile', data.fileUrl);
-      localStorage.setItem('selectedFileName', fileMeta.name.replace(/\.[^/.]+$/, '') + '.pdf');
-      navigate('/download');
-    } catch (error) {
-      console.error('Konversi gagal:', error);
-      alert('Konversi gagal: ' + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleConvertJpgToPdf = async () => {
-    if (!checkGuestLimit()) return;
-
-    if (!uploadedFiles.length) return alert('Pilih file dulu!');
-    const fileMeta = uploadedFiles[0];
-    const allowedExtensions = ['jpg', 'jpeg'];
-    const fileExtension = fileMeta.name.split('.').pop().toLowerCase();
-    if (!allowedExtensions.includes(fileExtension)) {
-      return alert('Pilih file JPG untuk dikonversi ke PDF!');
-    }
-
-    try {
-      // Tambahkan delay 0.5 detik sebelum setIsLoadingJpg(true)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setIsLoadingJpg(true);
-
-      const response = await fetch('http://localhost:5000/api/convert/jpg-to-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: fileMeta.name }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${errorText}`);
-      }
-
-      const data = await response.json();
-      localStorage.setItem('selectedFile', data.fileUrl);
-      localStorage.setItem('selectedFileName', fileMeta.name.replace(/\.[^/.]+$/, '') + '.pdf');
-      navigate('/download');
-    } catch (error) {
-      console.error('Konversi gagal:', error);
-      alert('Konversi gagal: ' + error.message);
-    } finally {
-      setIsLoadingJpg(false); // Reset loading JPG
+      setIsLoadingJpg(false);
     }
   };
 
   return (
     <div className="header">
-      {/* Header kiri atas */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 20 }}>
         <button className="back-button" onClick={() => navigate('/')}>← Back to Home</button>
       </div>
 
       <div className="halaman-content">
-        {/* Notifikasi upload */}
         {notif && (
           <div style={{
             background: '#fffae6',
@@ -243,34 +172,22 @@ function Halaman() {
             marginBottom: '16px',
             fontWeight: 'bold',
             border: '1px solid #ffe0b2'
-          }}>
-            {notif}
-          </div>
+          }}>{notif}</div>
         )}
+
         <h2 className="halaman-title">Choose Your File</h2>
-        <p className="halaman-subtitle">Pilih File converter kamu!</p>
+        <p className="halaman-subtitle">Pilih file converter kamu!</p>
 
         <div className="button-container">
-          <button className="convert-button" onClick={handleConvertWordToPdf} disabled={isLoading || isLoadingJpg}>Word To PDF</button>
-          <button className="convert-button" onClick={handleConvertExcelToPdf} disabled={isLoading || isLoadingJpg}>Excel To PDF</button>
-          <button
-            className="convert-button"
-            onClick={handleConvertJpgToPdf}
-            disabled={isLoadingJpg || isLoading}
-          >
-            {isLoadingJpg ? (
-              <>
-                <span className="loading-spinner" style={{ marginRight: 8 }} />
-                Tunggu sebentar...
-              </>
-            ) : (
-              'JPG To PDF'
-            )}
+          <button className="convert-button" onClick={() => handleConvert('word')} disabled={isLoading || isLoadingJpg}>Word To PDF</button>
+          <button className="convert-button" onClick={() => handleConvert('excel')} disabled={isLoading || isLoadingJpg}>Excel To PDF</button>
+          <button className="convert-button" onClick={() => handleConvert('jpg')} disabled={isLoading || isLoadingJpg}>
+            {isLoadingJpg ? 'Tunggu Sebentar...' : 'JPG To PDF'}
           </button>
         </div>
 
         <div className="uploaded-files">
-          {uploadedFiles.length > 0 && uploadedFiles.map((file, index) => (
+          {uploadedFiles.map((file, index) => (
             <div key={index} className="uploaded-file">
               <span className="uploaded-file-name">{file.name}</span>
               <button className="delete-btn" onClick={() => handleDelete(file.name)}>Delete</button>
@@ -278,18 +195,12 @@ function Halaman() {
           ))}
         </div>
 
-        {isLoading && <div className="loading-spinner">Loading</div>}
+        {(isLoading || isLoadingJpg) && <div className="loading-spinner">Loading...</div>}
 
         {isLoggedIn && (
           <>
             <button className="upload-btn" onClick={handleAddFile}>Tambahkan File</button>
-            <input
-              type="file"
-              accept=".doc,.docx,.xls,.xlsx,.jpg,.jpeg"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
+            <input type="file" accept=".doc,.docx,.xls,.xlsx,.jpg,.jpeg" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
           </>
         )}
       </div>

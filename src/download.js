@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './download.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Download() {
   const [fileUrl, setFileUrl] = useState('');
   const [fileName, setFileName] = useState('download.pdf');
@@ -20,6 +22,8 @@ function Download() {
   }, []);
 
   const handleDownload = () => {
+    if (!fileUrl) return;
+
     const link = document.createElement('a');
     link.href = fileUrl;
     link.download = fileName;
@@ -27,39 +31,59 @@ function Download() {
     link.click();
     document.body.removeChild(link);
 
-    // Simpan metadata file download ke localStorage
+    saveDownloadMetadata();
+  };
+
+  const saveDownloadMetadata = () => {
     let size = null;
-    const uploadedFile = localStorage.getItem('uploadedFile');
-    if (uploadedFile) {
-      try {
+    try {
+      const uploadedFile = localStorage.getItem('uploadedFile');
+      if (uploadedFile) {
         const parsed = JSON.parse(uploadedFile);
         const found = Array.isArray(parsed)
           ? parsed.find(f => f.name === fileName)
           : (parsed.name === fileName ? parsed : null);
         if (found && found.size) size = found.size;
-      } catch {}
+      }
+    } catch (err) {
+      console.error("Gagal parsing uploadedFile:", err);
     }
 
-    const userName = localStorage.getItem('userName') || 'default';
+    const userName = localStorage.getItem('userName') || 'guest';
     const key = `downloadedFiles_${userName}`;
     const downloadedFiles = JSON.parse(localStorage.getItem(key) || '[]');
-    downloadedFiles.push({
+
+    const newFile = {
       name: fileName,
       date: new Date().toISOString(),
       size: size,
-    });
+    };
+    downloadedFiles.push(newFile);
     localStorage.setItem(key, JSON.stringify(downloadedFiles));
 
-    const API_URL = process.env.REACT_APP_API_URL;
-    fetch(`${API_URL}/api/files/upload`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fileName,
-        userName: localStorage.getItem('userName') || null,
-        size: size,
-      }),
-    });
+    // Kirim log download ke backend (endpoint tersendiri)
+    sendDownloadLogToBackend(userName, newFile);
+  };
+
+  const sendDownloadLogToBackend = async (userName, fileData) => {
+    try {
+      const response = await fetch(`${API_URL}/api/files/log-download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: fileData.name,
+          userName: userName,
+          size: fileData.size,
+          date: fileData.date
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal kirim log download');
+      }
+    } catch (err) {
+      console.error('Gagal mengirim log download:', err);
+    }
   };
 
   const handleHomeClick = () => {
@@ -68,7 +92,6 @@ function Download() {
 
   return (
     <div className="download-update-root">
-      {/* Header Merah */}
       <div className="full-width-header">
         <div className="download-update-logo">
           <span className="download-update-logo-bold">PDF</span> Kita
@@ -79,7 +102,6 @@ function Download() {
         <button className="download-update-home" onClick={handleHomeClick}>HOME</button>
       </div>
 
-      {/* Konten Tengah */}
       <div className="download-update-content">
         <div className="download-update-title">
           <strong>Download Your File</strong>
@@ -96,7 +118,6 @@ function Download() {
         )}
       </div>
 
-      {/* Footer */}
       <div className="download-update-footer">
         Create By @kelompok_1
       </div>

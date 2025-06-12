@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './regis.css';
 
+// ✅ Ambil API URL dari environment
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Regis() {
   const [formData, setFormData] = useState({
     username: '',
@@ -18,7 +21,7 @@ function Regis() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch(`${API_URL}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -28,7 +31,7 @@ function Regis() {
         const result = await response.json();
         alert(result.message);
         setFormData({ username: '', email: '', password: '' });
-        navigate('/login'); // Arahkan ke halaman login setelah registrasi
+        navigate('/login');
       } else {
         const error = await response.json();
         alert(error.error || 'Gagal registrasi');

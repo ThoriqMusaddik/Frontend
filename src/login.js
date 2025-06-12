@@ -2,25 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
 
-  const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch(`${API_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -55,27 +50,9 @@ function Login() {
         <p>Silahkan masuk menggunakan akun kamu</p>
         <form onSubmit={handleSubmit}>
           <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Masukkan email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-
+          <input type="email" id="email" name="email" placeholder="Masukkan email" value={formData.email} onChange={handleChange} required />
           <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Masukkan password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-
+          <input type="password" id="password" name="password" placeholder="Masukkan password" value={formData.password} onChange={handleChange} required />
           <button type="submit" className="submit-btn">Masuk</button>
         </form>
       </div>

@@ -9,77 +9,67 @@ function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notif, setNotif] = useState('');
 
-  // Ambil API URL dari env
   const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const name = localStorage.getItem('userName');
-    if (name) setUserName(name);
+    setUserName(name || '');
     setIsLoggedIn(!!localStorage.getItem('userToken'));
   }, []);
 
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  const handleButtonClick = () => fileInputRef.current?.click();
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const allowedExtensions = ['doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg'];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!file) return;
 
-      if (allowedExtensions.includes(fileExtension)) {
-        setNotif('Mohon tunggu sebentar, file sedang ter-upload...');
+    const allowedExtensions = ['doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
 
-        const formData = new FormData();
-        formData.append('file', file);
+    if (!allowedExtensions.includes(fileExtension)) {
+      setNotif('Hanya file Word, Excel, dan JPG yang dapat diunggah.');
+      setTimeout(() => setNotif(''), 2000);
+      return;
+    }
 
-        try {
-          const response = await fetch(`${API_URL}/api/files/upload`, {
-            method: 'POST',
-            body: formData,
-          });
+    setNotif('Mohon tunggu sebentar, file sedang ter-upload...');
+    const formData = new FormData();
+    formData.append('file', file);
 
-          if (!response.ok) {
-            throw new Error('Gagal upload file ke server');
-          }
+    try {
+      const response = await fetch(`${API_URL}/api/files/upload`, {
+        method: 'POST',
+        body: formData,
+      });
 
-          const data = await response.json();
-          const fileData = {
-            name: data.originalname,
-            size: file.size,
-            type: file.type,
-            path: `/uploads/${data.filename}`,
-            uploadedBy: 1,
-          };
-          localStorage.setItem('uploadedFile', JSON.stringify(fileData));
-          setNotif('Sukses di-upload!');
-          setTimeout(() => setNotif(''), 1500);
-          navigate('/halaman');
-        } catch (error) {
-          console.error('Terjadi kesalahan:', error);
-          setNotif('Gagal upload file ke server.');
-          setTimeout(() => setNotif(''), 2000);
-        }
-      } else {
-        setNotif('Hanya file Word, Excel, dan JPG yang dapat diunggah.');
-        setTimeout(() => setNotif(''), 2000);
-      }
+      if (!response.ok) throw new Error('Gagal upload file ke server');
+
+      const data = await response.json();
+      const fileData = {
+        name: data.originalname,
+        size: file.size,
+        type: file.type,
+        path: `/uploads/${data.filename}`,
+        uploadedBy: 1,
+      };
+
+      localStorage.setItem('uploadedFile', JSON.stringify(fileData));
+      setNotif('Sukses di-upload!');
+      setTimeout(() => setNotif(''), 1500);
+      navigate('/halaman');
+    } catch (error) {
+      console.error('Terjadi kesalahan:', error);
+      setNotif('Gagal upload file ke server.');
+      setTimeout(() => setNotif(''), 2000);
     }
   };
 
-  const handleLogin = () => navigate('/login');
-  const handleSignUp = () => navigate('/signup');
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userName');
+    localStorage.clear();
     setIsLoggedIn(false);
     setUserName('');
     navigate('/');
   };
-  const handleProfileClick = () => navigate('/profil');
 
   return (
     <div className="container">
@@ -91,8 +81,8 @@ function Home() {
       <div className="auth-buttons">
         {!isLoggedIn ? (
           <>
-            <button onClick={handleLogin} className="auth-btn">Login</button>
-            <button onClick={handleSignUp} className="auth-btn">Sign Up</button>
+            <button onClick={() => navigate('/login')} className="auth-btn">Login</button>
+            <button onClick={() => navigate('/signup')} className="auth-btn">Sign Up</button>
           </>
         ) : (
           <button onClick={handleLogout} className="auth-btn">Logout</button>
@@ -100,7 +90,7 @@ function Home() {
       </div>
 
       {isLoggedIn && (
-        <div className="user-profile" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
+        <div className="user-profile" onClick={() => navigate('/profil')} style={{ cursor: 'pointer' }}>
           <span className="profile-icon">{userName ? userName.charAt(0).toUpperCase() : 'U'}</span>
           <span style={{ fontWeight: 'bold', color: '#fff', fontSize: '1.1rem' }}>Halo, {userName}!</span>
         </div>
@@ -121,7 +111,7 @@ function Home() {
           </div>
         )}
         <h2 className="download-title">File Converter</h2>
-        <p className="download-subtitle">Masukkan File word, excel, JPG dan Nikmati hasil Converternya</p>
+        <p className="download-subtitle">Masukkan File Word, Excel, JPG dan Nikmati hasil Converternya</p>
         <input
           type="file"
           accept=".doc,.docx,.xls,.xlsx,.jpg,.jpeg"
