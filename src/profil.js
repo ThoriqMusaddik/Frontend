@@ -236,9 +236,74 @@ function Profil() {
                     </tr>
                   ))
                 )}
+                <div className="saved-files-table-container">
+            <table className="saved-files-table">
+              <thead>
+                <tr>
+                  <th>Nama File</th>
+                  <th>Date</th>
+                  <th>Download Again</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedFiles.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center' }}>Tidak ada file tersimpan.</td>
+                  </tr>
+                ) : (
+                  savedFiles.map((file, idx) => (
+                    <tr key={idx}>
+                      <td>{file.name}</td>
+                      <td>{file.date ? new Date(file.date).toLocaleString() : '-'}</td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                          <span>
+                            {file.size ? `${(file.size / 1024).toFixed(1)} KB` : '-'}
+                          </span>
+                          <button
+                            className="profil-download-btn"
+                            style={{
+                              marginTop: '6px',
+                              padding: '4px 14px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#e74c3c',
+                              color: '#fff',
+                              fontWeight: 'bold',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleRedownload(file)}
+                          >
+                            Unduh
+                          </button>
+                          <button
+                            className="profil-delete-btn"
+                            style={{
+                              marginTop: '6px',
+                              padding: '4px 14px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#888',
+                              color: '#fff',
+                              fontWeight: 'bold',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleDeleteFile(file.name)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+              </tbody>
+            </table>
+          </div>
+          
         )}
       </div>
     </div>
